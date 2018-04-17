@@ -1,9 +1,25 @@
+import json
 import time
+
+from redis import StrictRedis
+
 from celeryapp import app
 import random
 import redis
 
-r = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+class RedisJson(StrictRedis):
+
+    def getj(self, name):
+        return json.loads(super().get(name))
+
+    def setj(self, name, value, ex=None, px=None, nx=False, xx=False):
+        value = json.dumps(value)
+        return super().set(name, value, ex, px, nx, xx)
+
+
+# r = redis.StrictRedis(host='localhost', port=6379, db=0)
+r = RedisJson(host='localhost', port=6379, db=0)
 
 
 @app.task
@@ -119,6 +135,7 @@ def refresh_model(secs_before, secs=3):
         secs = 0
     return secs_before + secs
 
+
 #####################################################
 
 @app.task
@@ -144,3 +161,42 @@ def reduce(numbers):
     time.sleep(2)
     print('task three finishes')
     return sum(numbers)
+
+
+######################################################
+
+@app.task
+def redis_write():
+    syms = [
+        "ETHBTC",
+        "LTCBTC",
+        "BNBBTC",
+        "NEOBTC",
+        "BCCBTC",
+        "GASBTC"
+    ]
+    r.setj('syms', syms)
+    # r.set('syms', json.dumps(syms))
+    lots = {
+        "ETHBTC": 0.001,
+        "LTCBTC": 0.01,
+        "BNBBTC": 1.0,
+        "NEOBTC": 0.01,
+        "BCCBTC": 0.001,
+        "GASBTC": 0.01,
+        "BNBETH": 1.0
+    }
+    r.setj('lots', lots)
+    # r.set('lots', json.dumps(lots))
+    r.setj('float', 0.03123)
+
+
+@app.task
+def redis_read():
+    syms = r.getj('syms')
+    lots = r.getj('lots')
+    flo = r.getj('float')
+    print(syms, lots, flo)
+    return syms, lots, flo
+
+
