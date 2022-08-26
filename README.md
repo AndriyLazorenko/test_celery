@@ -6,11 +6,11 @@
 
 #### Setting up message broker (RabbitMQ)
 
-http://docs.celeryproject.org/en/latest/getting-started/brokers/rabbitmq.html#broker-rabbitmq
+https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/rabbitmq.html
 
 #### Setting up backend (Redis)
 
-http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html#broker-redis
+https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html
 
 #### Setting up workers
 Before running a workflow on Celery, one needs to switch on Celery
